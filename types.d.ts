@@ -1,10 +1,8 @@
-export interface Blog {
-	id: number;
+interface Blog {
 	title: string;
 	description: string;
 	image: string;
-	date: number;
 	category: string;
 	author: string;
-	author_img: string;
+	authorImage: string;
 }
