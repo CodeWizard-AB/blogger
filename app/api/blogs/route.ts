@@ -6,33 +6,42 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 export async function GET() {
-	const response = await databases.listDocuments(
-		process.env.APPWRITE_BLOG_DATABASE_ID!,
-		process.env.APPWRITE_BLOGS_COLLECTION_ID!
-	);
-	return NextResponse.json({ status: "success", ...response });
+	try {
+		const response = await databases.listDocuments(
+			process.env.APPWRITE_BLOG_DATABASE_ID!,
+			process.env.APPWRITE_BLOGS_COLLECTION_ID!
+		);
+		return NextResponse.json({ status: "success", ...response });
+	} catch (error) {
+		if (error instanceof Error) {
+			return NextResponse.json(
+				{
+					status: "error",
+					message: "An unexpected error occurred",
+					error: error.message || "Unknown error",
+				},
+				{ status: 500 }
+			);
+		}
+	}
 }
 
 export async function POST(request: NextRequest) {
 	try {
 		// * Parse and validate data
 		const formData = await request.formData();
+		const body = await request.json();
+		console.log(formData, body);
+		return;
 		const data = Object.fromEntries(formData.entries());
 		const validatedData = blogSchema.parse(data);
 
 		// * Upload files
-		const [image, authorImage] = await Promise.all([
-			storage.createFile(
-				process.env.APPWRITE_BLOGS_BUCKET_ID!,
-				ID.unique(),
-				validatedData.image as File
-			),
-			storage.createFile(
-				process.env.APPWRITE_BLOGS_BUCKET_ID!,
-				ID.unique(),
-				validatedData.authorImage as File
-			),
-		]);
+		const image = await storage.createFile(
+			process.env.APPWRITE_BLOGS_BUCKET_ID!,
+			ID.unique(),
+			validatedData.image as File
+		);
 
 		// * Save to database
 		const response = await databases.createDocument(
@@ -42,7 +51,6 @@ export async function POST(request: NextRequest) {
 			{
 				...data,
 				image: getImageUrl(image.$id),
-				authorImage: getImageUrl(authorImage.$id),
 			}
 		);
 

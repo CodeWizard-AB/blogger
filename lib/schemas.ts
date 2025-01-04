@@ -6,5 +6,5 @@ export const blogSchema = z.object({
 	category: z.string().min(1, "Category is required"),
 	author: z.string().min(1, "Author is required"),
 	image: z.instanceof(File, { message: "Image is required" }),
-	authorImage: z.instanceof(File, { message: "Author image is required" }),
+	authorImage: z.string().url("Author image is required"),
 });
