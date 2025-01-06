@@ -1,15 +1,23 @@
 import { databases, storage } from "@/lib/appwrite";
 import { blogSchema } from "@/lib/schemas";
 import { getImageUrl } from "@/lib/utils";
-import { ID } from "appwrite";
+import { ID, Query } from "appwrite";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+	const searchParams = request.nextUrl.searchParams;
+	const category = searchParams.get("category");
+	const categoryQuery =
+		category && category !== "All"
+			? [Query.equal("category", category as string)]
+			: [];
+
 	try {
 		const response = await databases.listDocuments(
 			process.env.APPWRITE_BLOG_DATABASE_ID!,
-			process.env.APPWRITE_BLOGS_COLLECTION_ID!
+			process.env.APPWRITE_BLOGS_COLLECTION_ID!,
+			categoryQuery
 		);
 		return NextResponse.json({ status: "success", ...response });
 	} catch (error) {
@@ -30,10 +38,8 @@ export async function POST(request: NextRequest) {
 	try {
 		// * Parse and validate data
 		const formData = await request.formData();
-		const body = await request.json();
-		console.log(formData, body);
-		return;
 		const data = Object.fromEntries(formData.entries());
+		console.log(data);
 		const validatedData = blogSchema.parse(data);
 
 		// * Upload files

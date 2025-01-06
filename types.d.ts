@@ -5,4 +5,5 @@ interface Blog {
 	category: string;
 	author: string;
 	authorImage: string;
+	$id: string;
 }

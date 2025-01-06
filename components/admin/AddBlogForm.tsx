@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { blogSchema } from "@/lib/schemas";
 import { z } from "zod";
+import toast from "react-hot-toast";
 
 export default function AddBlogForm() {
 	const [preview, setPreview] = useState<string | null>(null);
@@ -14,7 +15,8 @@ export default function AddBlogForm() {
 		register,
 		handleSubmit,
 		setValue,
-		formState: { errors },
+		formState: { errors, isSubmitting },
+		reset,
 	} = useForm<z.infer<typeof blogSchema>>({
 		resolver: zodResolver(blogSchema),
 		defaultValues: {
@@ -53,7 +55,13 @@ export default function AddBlogForm() {
 			next: { revalidate: 3600 },
 		});
 
-		console.log(response);
+		if (response.ok) {
+			toast.success("Blog added successfully");
+			reset();
+			setPreview(null);
+		} else {
+			toast.error("Failed to add blog");
+		}
 	};
 
 	return (
@@ -124,7 +132,11 @@ export default function AddBlogForm() {
 				)}
 			</label>
 
-			<button type="submit" className="w-max bg-black text-white py-3 px-4">
+			<button
+				type="submit"
+				className="w-max bg-black text-white py-3 px-4 mt-6"
+				disabled={isSubmitting}
+			>
 				Add blog
 			</button>
 		</form>
