@@ -14,6 +14,7 @@ export default function BlogTab({ tab }: Readonly<{ tab: string }>) {
 			className={`font-medium ${
 				category === tab ? "bg-gray-950 text-white px-4 py-1" : ""
 			}`}
+			scroll={false}
 		>
 			{tab}
 		</Link>

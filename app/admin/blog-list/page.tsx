@@ -2,8 +2,17 @@ import { MdDeleteOutline } from "react-icons/md";
 
 export default async function BlogList() {
 	const blogs = (
-		await fetch("http://localhost:3001/api/blogs").then((res) => res.json())
-	).documents;
+		await fetch("http://localhost:3001/api/blogs", {
+			next: { tags: ["blogs"], revalidate: 3600 },
+		}).then((res) => res.json())
+	)?.documents;
+
+	const deleteBlog = async (id: string) => {
+		"use server";
+		await fetch(`http://localhost:3001/api/blogs/${id}`, {
+			method: "DELETE",
+		});
+	};
 
 	return (
 		<div className="p-6 px-12">
@@ -19,7 +28,7 @@ export default async function BlogList() {
 						</tr>
 					</thead>
 					<tbody>
-						{blogs.map((blog: Blog) => (
+						{blogs?.map((blog: Blog) => (
 							<tr key={blog.$id} className="*:px-6 *:py-5 border-b">
 								<td>{blog.author}</td>
 								<td>{blog.title}</td>
@@ -31,9 +40,11 @@ export default async function BlogList() {
 									})}
 								</td>
 								<td>
-									<button>
-										<MdDeleteOutline />
-									</button>
+									<form action={deleteBlog.bind(null, blog.$id)}>
+										<button>
+											<MdDeleteOutline />
+										</button>
+									</form>
 								</td>
 							</tr>
 						))}
