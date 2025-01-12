@@ -6,4 +6,5 @@ interface Blog {
 	author: string;
 	authorImage: string;
 	$id: string;
+	$createdAt: string;
 }

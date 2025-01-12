@@ -19,7 +19,7 @@ export default function BlogCard({ blog }: { blog: Blog }) {
 				</p>
 				<h2 className="font-medium text-lg mb-2">{blog.title}</h2>
 				<p className="text-sm mb-4">{blog.description}</p>
-				<Link href={"/"} className="flex items-center gap-2">
+				<Link href={`/blogs/${blog.$id}`} className="flex items-center gap-2">
 					<span>Read more</span>
 					<Image src={Arrow} alt="arrow icon" className="w-3" />
 				</Link>
